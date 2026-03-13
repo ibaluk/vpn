@@ -16,6 +16,29 @@ const PORT = Number(process.env.PORT || 3000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 const WORDPRESS_URL = process.env.WORDPRESS_URL || 'http://wordpress:80';
 
+const fallbackCountries = [
+  { name: 'United States', flag: '🇺🇸' },
+  { name: 'Canada', flag: '🇨🇦' },
+  { name: 'Brazil', flag: '🇧🇷' },
+  { name: 'Mexico', flag: '🇲🇽' },
+  { name: 'United Kingdom', flag: '🇬🇧' },
+  { name: 'Germany', flag: '🇩🇪' },
+  { name: 'France', flag: '🇫🇷' },
+  { name: 'Spain', flag: '🇪🇸' },
+  { name: 'Italy', flag: '🇮🇹' },
+  { name: 'Netherlands', flag: '🇳🇱' },
+  { name: 'Sweden', flag: '🇸🇪' },
+  { name: 'Norway', flag: '🇳🇴' },
+  { name: 'Switzerland', flag: '🇨🇭' },
+  { name: 'Turkey', flag: '🇹🇷' },
+  { name: 'United Arab Emirates', flag: '🇦🇪' },
+  { name: 'India', flag: '🇮🇳' },
+  { name: 'Japan', flag: '🇯🇵' },
+  { name: 'South Korea', flag: '🇰🇷' },
+  { name: 'Singapore', flag: '🇸🇬' },
+  { name: 'Australia', flag: '🇦🇺' }
+];
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.resolve(__dirname, '..')));
@@ -152,6 +175,47 @@ app.post('/api/feedback', (req, res) => {
   });
 
   return res.status(201).json({ status: 'ok' });
+});
+
+
+app.get('/api/public/countries', async (_req, res) => {
+  try {
+    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flag');
+
+    if (!response.ok) {
+      return res.json({
+        source: 'fallback',
+        countries: fallbackCountries
+      });
+    }
+
+    const countries = await response.json();
+    const normalized = countries
+      .map((country) => ({
+        name: country?.name?.common || '',
+        flag: country?.flag || '🌐'
+      }))
+      .filter((country) => country.name)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 20);
+
+    if (!normalized.length) {
+      return res.json({
+        source: 'fallback',
+        countries: fallbackCountries
+      });
+    }
+
+    return res.json({
+      source: 'restcountries',
+      countries: normalized
+    });
+  } catch (_error) {
+    return res.json({
+      source: 'fallback',
+      countries: fallbackCountries
+    });
+  }
 });
 
 app.get('/api/cms/layout/:slug', async (req, res) => {

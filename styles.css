@@ -43,20 +43,49 @@ body {
   padding-bottom: 20px;
 }
 
+.hero__body {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 380px);
+  align-items: center;
+  gap: 26px;
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+
+
 .logo {
-  font-weight: 800;
-  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo__image {
+  width: 170px;
+  height: auto;
+  display: block;
+}
+
+.btn__icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  display: inline-block;
+  object-fit: contain;
 }
 
 .hero__content {
-  margin-top: 42px;
   max-width: 740px;
+}
+
+.hero__visual img {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.35));
 }
 
 h1 {
@@ -465,6 +494,44 @@ th {
   }
 }
 
+.countries-ticker {
+  margin-top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: rgba(138, 43, 255, 0.1);
+}
+
+.countries-ticker__track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: countriesTicker 26s linear infinite;
+}
+
+.countries-ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.countries-ticker__flag {
+  font-size: 18px;
+}
+
+@keyframes countriesTicker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .cms__fallback {
   color: var(--muted);
   line-height: 1.6;
@@ -534,5 +601,64 @@ th {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+}
+
+
+.site-footer {
+  border-top: 1px solid var(--panel-border);
+  background: rgba(8, 6, 15, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.site-footer__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.site-footer__inner p {
+  margin: 0;
+}
+
+.site-footer__logo {
+  width: 140px;
+  height: auto;
+  display: block;
+}
+
+.site-footer__links {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .site-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero__body {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__visual {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countries-ticker__track {
+    animation: none;
   }
 }

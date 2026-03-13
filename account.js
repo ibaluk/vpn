@@ -118,7 +118,7 @@ createApp({
     <div class="page">
       <header class="hero hero--compact">
         <nav class="nav">
-          <div class="logo">{{ brand }}</div>
+          <div class="logo"><img class="logo__image" src="https://b.freecityvpn.com/images/logo_header_pc.svg?v=202602241650" alt="{{ brand }}" /></div>
           <a href="./index.html" class="btn btn--small">На главную</a>
         </nav>
       </header>
@@ -226,6 +226,17 @@ createApp({
           </section>
         </section>
       </main>
+
+      <footer class="site-footer">
+        <div class="site-footer__inner">
+          <img class="site-footer__logo" src="https://b.freecityvpn.com/images/logo_footer_pc.svg?v=202602241650" alt="FreeCity VPN" />
+          <p>© {{ new Date().getFullYear() }} FreeCity VPN. Все права защищены.</p>
+          <div class="site-footer__links">
+            <a href="./index.html" class="link">Главная</a>
+            <a href="https://t.me/freecity_support_bot" class="link" target="_blank" rel="noopener noreferrer">Поддержка</a>
+          </div>
+        </div>
+      </footer>
     </div>
   `
 }).mount('#app');

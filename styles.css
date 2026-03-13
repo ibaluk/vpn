@@ -13,28 +13,16 @@ body {
 
 .page {
   min-height: 100vh;
-  --bg: #08132a;
-  --bg-soft: #101f3d;
-  --text: #eff5ff;
-  --muted: #b9c7df;
-  --accent: #4e8dff;
-  --accent-2: #7ac3ff;
-  --panel-border: rgba(255, 255, 255, 0.1);
-  --surface: rgba(255, 255, 255, 0.05);
+  --bg: #08060f;
+  --bg-soft: #161129;
+  --text: #f8f8ff;
+  --muted: #bab0da;
+  --accent: #8a2bff;
+  --accent-2: #00d1ff;
+  --panel-border: rgba(145, 53, 255, 0.35);
+  --surface: rgba(138, 43, 255, 0.12);
   color: var(--text);
-  background: radial-gradient(circle at top right, #15306a 0%, var(--bg) 40%);
-}
-
-.page.variant--glass {
-  --bg: #eef4ff;
-  --bg-soft: #ffffff;
-  --text: #18223d;
-  --muted: #5f6b84;
-  --accent: #2f7fff;
-  --accent-2: #67c2ff;
-  --panel-border: rgba(24, 34, 61, 0.14);
-  --surface: rgba(255, 255, 255, 0.9);
-  background: linear-gradient(140deg, #e8f0ff 0%, #f8fbff 60%, #dff3ff 100%);
+  background: radial-gradient(circle at top center, #261247 0%, #08060f 55%);
 }
 
 .page.variant--neon {
@@ -64,41 +52,6 @@ body {
 .logo {
   font-weight: 800;
   letter-spacing: 0.3px;
-}
-
-.variant-switcher {
-  margin-top: 30px;
-  padding: 18px;
-  background: var(--surface);
-  border: 1px solid var(--panel-border);
-  border-radius: 14px;
-}
-
-.variant-switcher h2 {
-  margin: 0 0 12px;
-  font-size: 1rem;
-}
-
-.variant-switcher__controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.variant-chip {
-  border: 1px solid var(--panel-border);
-  background: transparent;
-  color: var(--text);
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.variant-chip--active {
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  border-color: transparent;
-  color: #fff;
 }
 
 .hero__content {

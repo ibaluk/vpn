@@ -3,29 +3,11 @@ const { createApp } = Vue;
 createApp({
   data() {
     return {
-      activeVariant: 'aurora',
-      variants: {
-        aurora: {
-          label: 'Aurora Dark',
-          title: 'SafeWave VPN',
-          heading: 'Свободный и безопасный интернет на всех ваших устройствах',
-          text: 'Защитите личные данные в публичном Wi‑Fi, обходите блокировки и сохраняйте конфиденциальность одним кликом.',
-          cta: 'Попробовать бесплатно 7 дней'
-        },
-        glass: {
-          label: 'Glass Light',
-          title: 'SafeWave Cloud',
-          heading: 'Лёгкий и прозрачный VPN-дизайн для современной аудитории',
-          text: 'Минималистичный интерфейс в светлой палитре повышает доверие и отлично подходит для B2C-продуктов.',
-          cta: 'Запустить бесплатный доступ'
-        },
-        neon: {
-          label: 'Neon Cyber',
-          title: 'SafeWave X',
-          heading: 'Киберпанк-стиль для геймеров и tech-аудитории',
-          text: 'Контрастные неоновые акценты подчёркивают скорость соединения и технологичность сервиса.',
-          cta: 'Включить турбо-режим'
-        }
+      brand: {
+        title: 'Freecity',
+        heading: 'Киберпанк-стиль для геймеров и tech-аудитории',
+        text: 'Контрастные неоновые акценты подчёркивают скорость соединения и технологичность сервиса.',
+        cta: 'Включить турбо-режим'
       },
       plans: [
         {
@@ -55,39 +37,19 @@ createApp({
       ]
     };
   },
-  computed: {
-    currentVariant() {
-      return this.variants[this.activeVariant];
-    }
-  },
   template: `
-    <div class="page" :class="'variant--' + activeVariant">
+    <div class="page variant--neon">
       <header class="hero">
         <nav class="nav">
-          <div class="logo">{{ currentVariant.title }}</div>
+          <div class="logo">{{ brand.title }}</div>
           <button class="btn btn--small">Скачать приложение</button>
         </nav>
 
-        <section class="variant-switcher">
-          <h2>3 альтернативных дизайна</h2>
-          <div class="variant-switcher__controls">
-            <button
-              v-for="(variant, key) in variants"
-              :key="key"
-              class="variant-chip"
-              :class="{ 'variant-chip--active': activeVariant === key }"
-              @click="activeVariant = key"
-            >
-              {{ variant.label }}
-            </button>
-          </div>
-        </section>
-
         <div class="hero__content">
-          <h1>{{ currentVariant.heading }}</h1>
-          <p>{{ currentVariant.text }}</p>
+          <h1>{{ brand.heading }}</h1>
+          <p>{{ brand.text }}</p>
           <div class="hero__actions">
-            <button class="btn">{{ currentVariant.cta }}</button>
+            <button class="btn">{{ brand.cta }}</button>
             <a href="#plans" class="link">Смотреть тарифы</a>
           </div>
           <ul class="features">

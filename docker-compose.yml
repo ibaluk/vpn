@@ -1,11 +1,30 @@
 services:
-  vpn-site:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: vpn-site
+    container_name: freecity-app
+    depends_on:
+      - postgres
+      - wordpress
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://freecity:freecity@postgres:5432/freecity
+      JWT_SECRET: change-me-in-production
+      WORDPRESS_URL: http://wordpress:80
     ports:
-      - "8080:80"
+      - "8080:3000"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: freecity-postgres
+    environment:
+      POSTGRES_DB: freecity
+      POSTGRES_USER: freecity
+      POSTGRES_PASSWORD: freecity
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   wordpress:
@@ -38,5 +57,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  postgres_data:
   wordpress_data:
   wordpress_db_data:

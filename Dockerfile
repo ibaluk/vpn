@@ -1,9 +1,15 @@
-FROM nginx:1.27-alpine
+FROM node:20-alpine
 
-WORKDIR /usr/share/nginx/html
+WORKDIR /app
 
+COPY package.json ./
+COPY prisma ./prisma
+COPY server ./server
 COPY index.html account.html main.js account.js styles.css ./
 
-EXPOSE 80
+RUN npm install
+RUN npx prisma generate
 
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
+
+CMD ["npm", "run", "start:prod"]

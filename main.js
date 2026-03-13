@@ -34,8 +34,27 @@ createApp({
         'Серверы в 45+ странах',
         'Без логов и трекеров',
         'Высокая скорость для стриминга и игр'
-      ]
+      ],
+      cms: {
+        title: '',
+        content: '',
+        loaded: false
+      }
     };
+  },
+  async mounted() {
+    try {
+      const response = await fetch('/api/cms/layout/landing-layout');
+      if (response.ok) {
+        const payload = await response.json();
+        this.cms.title = payload.title;
+        this.cms.content = payload.content;
+      }
+    } catch (_error) {
+      // fallback to static content when WordPress is unavailable
+    } finally {
+      this.cms.loaded = true;
+    }
   },
   template: `
     <div class="page">
@@ -59,6 +78,11 @@ createApp({
       </header>
 
       <main>
+        <section class="cms" v-if="cms.content">
+          <h2>{{ cms.title || 'Блок из WordPress' }}</h2>
+          <div class="cms__content" v-html="cms.content"></div>
+        </section>
+
         <section id="plans" class="plans">
           <h2>Тарифы</h2>
           <p>Прозрачные цены без скрытых комиссий и автоплатежей.</p>

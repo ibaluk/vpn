@@ -1,0 +1,12 @@
+{
+  "name": "freecity-vpn",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Freecity VPN landing page",
+  "scripts": {
+    "start": "python3 -m http.server 4173"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  }
+}

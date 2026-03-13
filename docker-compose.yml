@@ -12,6 +12,17 @@ services:
       DATABASE_URL: postgresql://freecity:freecity@postgres:5432/freecity
       JWT_SECRET: change-me-in-production
       WORDPRESS_URL: http://wordpress:80
+    volumes:
+      - ./assets:/app/assets
+      - ./prisma:/app/prisma
+      - ./server:/app/server
+      - ./account.html:/app/account.html
+      - ./account.js:/app/account.js
+      - ./faq.html:/app/faq.html
+      - ./faq.js:/app/faq.js
+      - ./index.html:/app/index.html
+      - ./main.js:/app/main.js
+
     ports:
       - "8080:3000"
     restart: unless-stopped
@@ -25,6 +36,8 @@ services:
       POSTGRES_PASSWORD: freecity
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5444:5432"
     restart: unless-stopped
 
   wordpress:

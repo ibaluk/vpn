@@ -506,7 +506,7 @@ th {
   display: flex;
   align-items: center;
   width: max-content;
-  animation: countriesTicker 26s linear infinite;
+  animation: countriesTicker 60s linear infinite;
 }
 
 .countries-ticker__item {

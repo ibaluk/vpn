@@ -22,7 +22,7 @@ services:
       - ./faq.js:/app/faq.js
       - ./index.html:/app/index.html
       - ./main.js:/app/main.js
-
+      - ./package.json:/app/package.json
     ports:
       - "8080:3000"
     restart: unless-stopped

@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
+const feedbackMessages = [];
 
 const PORT = Number(process.env.PORT || 3000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
@@ -36,7 +37,7 @@ function authMiddleware(req, res, next) {
   try {
     req.user = jwt.verify(token, JWT_SECRET);
     next();
-  } catch (error) {
+  } catch (_error) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
@@ -45,7 +46,7 @@ app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok' });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ status: 'error', message: 'Database is unavailable' });
   }
 });
@@ -62,7 +63,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
-
   if (existing) {
     return res.status(409).json({ error: 'Пользователь с таким email уже существует' });
   }
@@ -78,7 +78,6 @@ app.post('/api/auth/register', async (req, res) => {
   });
 
   const token = createToken(user);
-
   return res.status(201).json({
     token,
     user: {
@@ -98,19 +97,16 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
-
   if (!user) {
     return res.status(401).json({ error: 'Неверный email или пароль' });
   }
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
-
   if (!isValid) {
     return res.status(401).json({ error: 'Неверный email или пароль' });
   }
 
   const token = createToken(user);
-
   return res.json({
     token,
     user: {
@@ -140,6 +136,24 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
   return res.json({ user });
 });
 
+app.post('/api/feedback', (req, res) => {
+  const { name, email, message } = req.body || {};
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'name, email и message обязательны' });
+  }
+
+  feedbackMessages.push({
+    id: feedbackMessages.length + 1,
+    name,
+    email,
+    message,
+    createdAt: new Date().toISOString()
+  });
+
+  return res.status(201).json({ status: 'ok' });
+});
+
 app.get('/api/cms/layout/:slug', async (req, res) => {
   const { slug } = req.params;
 
@@ -163,13 +177,17 @@ app.get('/api/cms/layout/:slug', async (req, res) => {
       content: page.content?.rendered || '',
       updatedAt: page.modified
     });
-  } catch (error) {
+  } catch (_error) {
     return res.status(500).json({ error: 'Ошибка при запросе к WordPress' });
   }
 });
 
 app.get('/account', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'account.html'));
+});
+
+app.get('/faq', (_req, res) => {
+  res.sendFile(path.resolve(__dirname, '..', 'faq.html'));
 });
 
 app.get('*', (_req, res) => {

@@ -398,3 +398,141 @@ th {
     align-items: flex-start;
   }
 }
+
+.nav__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn--ghost {
+  background: rgba(0, 209, 255, 0.12);
+  border: 1px solid rgba(0, 209, 255, 0.35);
+}
+
+.hero__store-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn--playstore {
+  background: linear-gradient(120deg, #17b857, #25d366);
+  box-shadow: 0 0 0 rgba(37, 211, 102, 0.4);
+}
+
+.btn--support {
+  background: linear-gradient(120deg, #1f9cff, #6a5cff);
+  box-shadow: 0 0 0 rgba(31, 156, 255, 0.4);
+}
+
+.pulse {
+  animation: pulseGlow 1.8s ease-in-out infinite;
+}
+
+.pulse-soft {
+  animation: pulseGlowSoft 2.2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45);
+  }
+  70% {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 14px rgba(37, 211, 102, 0);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+@keyframes pulseGlowSoft {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(31, 156, 255, 0.45);
+  }
+  70% {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 14px rgba(31, 156, 255, 0);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(31, 156, 255, 0);
+  }
+}
+
+.cms__fallback {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.feedback,
+.faq {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.feedback {
+  padding-bottom: 80px;
+}
+
+.feedback h2 {
+  margin-bottom: 0;
+}
+
+.feedback > p {
+  color: var(--muted);
+}
+
+.feedback-form {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+}
+
+.feedback-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.feedback-form input,
+.feedback-form textarea {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-family: inherit;
+}
+
+.success {
+  margin: 0;
+  color: #8cffb0;
+}
+
+.faq__fallback {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .nav__actions,
+  .hero__store-actions {
+    width: 100%;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

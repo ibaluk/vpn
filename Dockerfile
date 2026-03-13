@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json ./
 COPY prisma ./prisma
 COPY server ./server
-COPY index.html account.html main.js account.js styles.css ./
+COPY index.html account.html faq.html main.js account.js faq.js styles.css ./
 
 RUN npm install
 RUN npx prisma generate

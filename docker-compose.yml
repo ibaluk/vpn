@@ -1,0 +1,62 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: freecity-app
+    depends_on:
+      - postgres
+      - wordpress
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://freecity:freecity@postgres:5432/freecity
+      JWT_SECRET: change-me-in-production
+      WORDPRESS_URL: http://wordpress:80
+    ports:
+      - "8080:3000"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: freecity-postgres
+    environment:
+      POSTGRES_DB: freecity
+      POSTGRES_USER: freecity
+      POSTGRES_PASSWORD: freecity
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  wordpress:
+    image: wordpress:6.8-php8.3-apache
+    container_name: freecity-wordpress
+    depends_on:
+      - wordpress-db
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_password
+      WORDPRESS_DB_NAME: wp_freecity
+    ports:
+      - "8081:80"
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: unless-stopped
+
+  wordpress-db:
+    image: mysql:8.0
+    container_name: freecity-wordpress-db
+    environment:
+      MYSQL_DATABASE: wp_freecity
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_password
+      MYSQL_ROOT_PASSWORD: root_password
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - wordpress_db_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  wordpress_data:
+  wordpress_db_data:

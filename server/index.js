@@ -16,6 +16,14 @@ const PORT = Number(process.env.PORT || 3000);
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 const WORDPRESS_URL = process.env.WORDPRESS_URL || 'http://wordpress:80';
 
+function formatPrice(amountCents, currency = 'RUB') {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency,
+    maximumFractionDigits: 0
+  }).format(amountCents / 100);
+}
+
 const fallbackCountries = [
   { name: 'United States', flag: '🇺🇸' },
   { name: 'Canada', flag: '🇨🇦' },
@@ -216,6 +224,104 @@ app.get('/api/public/countries', async (_req, res) => {
       countries: fallbackCountries
     });
   }
+});
+
+app.get('/api/public/plans', async (_req, res) => {
+  const plans = await prisma.plan.findMany({
+    where: { isActive: true },
+    orderBy: [{ priceCents: 'asc' }]
+  });
+
+  return res.json({ plans });
+});
+
+app.get('/api/private/purchased-plans', authMiddleware, async (req, res) => {
+  const purchasedPlans = await prisma.purchasedPlan.findMany({
+    where: { userId: req.user.userId },
+    include: { plan: true },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return res.json({ purchasedPlans });
+});
+
+app.get('/api/private/payment-history', authMiddleware, async (req, res) => {
+  const paymentHistory = await prisma.paymentHistory.findMany({
+    where: { userId: req.user.userId },
+    include: { purchasedPlan: { include: { plan: true } } },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return res.json({ paymentHistory });
+});
+
+app.get('/api/private/notifications', authMiddleware, async (req, res) => {
+  const notifications = await prisma.notification.findMany({
+    where: { userId: req.user.userId },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return res.json({ notifications });
+});
+
+app.post('/api/private/purchase', authMiddleware, async (req, res) => {
+  const { planExternalId, paymentMethod } = req.body || {};
+
+  if (!planExternalId || !paymentMethod) {
+    return res.status(400).json({ error: 'planExternalId и paymentMethod обязательны' });
+  }
+
+  const plan = await prisma.plan.findUnique({ where: { externalId: planExternalId } });
+  if (!plan || !plan.isActive) {
+    return res.status(404).json({ error: 'Тариф не найден или недоступен' });
+  }
+
+  const startedAt = new Date();
+  const expiresAt = new Date(startedAt);
+  expiresAt.setDate(expiresAt.getDate() + plan.durationDays);
+
+  const purchaseResult = await prisma.$transaction(async (tx) => {
+    const purchasedPlan = await tx.purchasedPlan.create({
+      data: {
+        userId: req.user.userId,
+        planId: plan.id,
+        externalId: `PP-${Date.now()}`,
+        status: 'ACTIVE',
+        startsAt: startedAt,
+        expiresAt,
+        autoRenew: false
+      },
+      include: { plan: true }
+    });
+
+    const payment = await tx.paymentHistory.create({
+      data: {
+        userId: req.user.userId,
+        purchasedPlanId: purchasedPlan.id,
+        externalId: `PAY-${Date.now()}`,
+        amountCents: plan.priceCents,
+        currency: plan.currency,
+        status: 'PAID',
+        paymentMethod,
+        paidAt: startedAt
+      }
+    });
+
+    await tx.notification.create({
+      data: {
+        userId: req.user.userId,
+        externalId: `NOTIF-${Date.now()}`,
+        title: 'Покупка тарифа выполнена',
+        message: `Вы успешно купили тариф «${plan.name}» за ${formatPrice(plan.priceCents, plan.currency)}.`,
+        type: 'info',
+        isRead: false
+      }
+    });
+
+    return { purchasedPlan, payment };
+  });
+
+  return res.status(201).json(purchaseResult);
 });
 
 app.get('/api/cms/layout/:slug', async (req, res) => {

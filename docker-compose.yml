@@ -1,0 +1,9 @@
+services:
+  vpn-site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vpn-site
+    ports:
+      - "8080:80"
+    restart: unless-stopped

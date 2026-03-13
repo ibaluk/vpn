@@ -1,242 +1,36 @@
 const { createApp } = Vue;
-
 const TOKEN_KEY = 'freecity_token';
+const LANG_KEY = 'freecity_lang';
+
+const messages = {
+  ru: { home:'На главную', login:'Авторизация', register:'Регистрация', authDesc:'Работает через Node.js API + PostgreSQL + Prisma.', name:'Имя', email:'Email', password:'Пароль', create:'Создать аккаунт', enter:'Войти', wait:'Подождите...', hasAcc:'Уже есть аккаунт? Войти', noAcc:'Нет аккаунта? Зарегистрироваться', cabinet:'Личный кабинет', logout:'Выйти', country:'Страна', devices:'Подключено устройств', buyPlan:'Купить тариф', plan:'Тариф', pickPlan:'Выберите тариф', paymentMethod:'Способ оплаты', card:'Банковская карта', buy:'Купить', buying:'Покупка...', bought:'Тариф успешно куплен', purchased:'Купленные тарифы', noPurchased:'Купленных тарифов пока нет.', history:'История платежей', noHistory:'История платежей пока пустая.', notifications:'Уведомления', noNotifications:'Новых уведомлений нет.', rights:'Все права защищены.', main:'Главная', support:'Поддержка' },
+  en: { home:'Home', login:'Login', register:'Register', authDesc:'Powered by Node.js API + PostgreSQL + Prisma.', name:'Name', email:'Email', password:'Password', create:'Create account', enter:'Sign in', wait:'Please wait...', hasAcc:'Already have an account? Sign in', noAcc:'No account? Register', cabinet:'Dashboard', logout:'Logout', country:'Country', devices:'Connected devices', buyPlan:'Buy plan', plan:'Plan', pickPlan:'Select a plan', paymentMethod:'Payment method', card:'Bank card', buy:'Buy', buying:'Processing...', bought:'Plan purchased successfully', purchased:'Purchased plans', noPurchased:'No plans purchased yet.', history:'Payment history', noHistory:'Payment history is empty.', notifications:'Notifications', noNotifications:'No new notifications.', rights:'All rights reserved.', main:'Main', support:'Support' },
+  de: { home:'Zur Startseite', login:'Anmeldung', register:'Registrierung', authDesc:'Basiert auf Node.js API + PostgreSQL + Prisma.', name:'Name', email:'E-Mail', password:'Passwort', create:'Konto erstellen', enter:'Einloggen', wait:'Bitte warten...', hasAcc:'Bereits ein Konto? Einloggen', noAcc:'Kein Konto? Registrieren', cabinet:'Konto', logout:'Abmelden', country:'Land', devices:'Verbundene Geräte', buyPlan:'Tarif kaufen', plan:'Tarif', pickPlan:'Tarif wählen', paymentMethod:'Zahlungsmethode', card:'Bankkarte', buy:'Kaufen', buying:'Wird verarbeitet...', bought:'Tarif erfolgreich gekauft', purchased:'Gekaufte Tarife', noPurchased:'Noch keine Tarife gekauft.', history:'Zahlungsverlauf', noHistory:'Zahlungsverlauf ist leer.', notifications:'Benachrichtigungen', noNotifications:'Keine neuen Benachrichtigungen.', rights:'Alle Rechte vorbehalten.', main:'Startseite', support:'Support' },
+  zh: { home:'返回首页', login:'登录', register:'注册', authDesc:'由 Node.js API + PostgreSQL + Prisma 驱动。', name:'姓名', email:'邮箱', password:'密码', create:'创建账户', enter:'登录', wait:'请稍候...', hasAcc:'已有账户？登录', noAcc:'没有账户？注册', cabinet:'个人中心', logout:'退出', country:'国家', devices:'已连接设备', buyPlan:'购买套餐', plan:'套餐', pickPlan:'选择套餐', paymentMethod:'支付方式', card:'银行卡', buy:'购买', buying:'购买中...', bought:'套餐购买成功', purchased:'已购套餐', noPurchased:'暂未购买套餐。', history:'支付历史', noHistory:'暂无支付记录。', notifications:'通知', noNotifications:'暂无新通知。', rights:'版权所有。', main:'首页', support:'支持' }
+};
 
 createApp({
-  data() {
-    return {
-      brand: 'Freecity',
-      profile: {
-        name: 'Гость',
-        email: '—',
-        country: 'Россия',
-        devices: 0,
-        status: 'Free'
-      },
-      auth: {
-        name: '',
-        email: '',
-        password: '',
-        mode: 'login',
-        error: '',
-        loading: false,
-        token: localStorage.getItem(TOKEN_KEY) || ''
-      },
-      purchasedPlans: [
-        { name: 'Freecity 12 месяцев', period: '15.01.2026 — 14.01.2027', devices: 'до 5 устройств', status: 'Активен' },
-        { name: 'Streaming Pack', period: '15.01.2026 — 14.04.2026', devices: 'Smart TV + 2 устройства', status: 'Активен' }
-      ],
-      paymentHistory: [
-        { id: 'FC-90231', date: '15.01.2026', amount: '2 988₽', method: 'Банковская карта •• 4481', status: 'Успешно' },
-        { id: 'FC-87310', date: '15.10.2025', amount: '897₽', method: 'SBP', status: 'Успешно' },
-        { id: 'FC-86002', date: '15.09.2025', amount: '299₽', method: 'Банковская карта •• 4481', status: 'Возврат' }
-      ],
-      notifications: [
-        { title: 'Продление подписки', text: 'Следующее списание 15.01.2027. Мы заранее напомним за 3 дня.', type: 'info' },
-        { title: 'Новый вход в аккаунт', text: 'Обнаружен вход с устройства Windows (Москва) сегодня в 18:42.', type: 'alert' },
-        { title: 'Бонус 20% на семейный тариф', text: 'Доступно персональное предложение до конца недели.', type: 'promo' }
-      ]
-    };
-  },
-  computed: {
-    isAuthorized() {
-      return Boolean(this.auth.token);
-    }
-  },
-  async mounted() {
-    if (this.auth.token) {
-      await this.loadMe();
-    }
-  },
+  data() { return { lang: localStorage.getItem(LANG_KEY)||'ru', brand:'Freecity', profile:{name:'Гость',email:'—',country:'Россия',devices:0,status:'Free'}, auth:{name:'',email:'',password:'',mode:'login',error:'',loading:false,token:localStorage.getItem(TOKEN_KEY)||''}, availablePlans:[], purchaseForm:{planExternalId:'',paymentMethod:'Банковская карта',submitting:false,success:'',error:''}, purchasedPlans:[], paymentHistory:[], notifications:[] }; },
+  computed: { isAuthorized() { return Boolean(this.auth.token); } },
+  async mounted() { document.documentElement.lang=this.lang; await this.loadPublicPlans(); if(this.auth.token){ await this.loadSessionData(); } },
   methods: {
-    async submitAuth() {
-      this.auth.error = '';
-      this.auth.loading = true;
-
-      const endpoint = this.auth.mode === 'register' ? '/api/auth/register' : '/api/auth/login';
-      const payload = {
-        email: this.auth.email,
-        password: this.auth.password,
-        ...(this.auth.mode === 'register' ? { name: this.auth.name } : {})
-      };
-
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          this.auth.error = data.error || 'Ошибка авторизации';
-          return;
-        }
-
-        this.auth.token = data.token;
-        localStorage.setItem(TOKEN_KEY, data.token);
-        this.profile.name = data.user.name;
-        this.profile.email = data.user.email;
-        this.profile.status = 'Premium';
-      } catch (_error) {
-        this.auth.error = 'Сервер API недоступен';
-      } finally {
-        this.auth.loading = false;
-      }
-    },
-    async loadMe() {
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${this.auth.token}`
-          }
-        });
-
-        if (!response.ok) {
-          this.logout();
-          return;
-        }
-
-        const data = await response.json();
-        this.profile.name = data.user.name;
-        this.profile.email = data.user.email;
-        this.profile.status = 'Premium';
-      } catch (_error) {
-        this.auth.error = 'Не удалось получить профиль';
-      }
-    },
-    logout() {
-      this.auth.token = '';
-      localStorage.removeItem(TOKEN_KEY);
-      this.profile.name = 'Гость';
-      this.profile.email = '—';
-      this.profile.status = 'Free';
-    }
+    t(key){ return (messages[this.lang]||messages.ru)[key]||messages.ru[key]||key; },
+    setLang(){ localStorage.setItem(LANG_KEY,this.lang); document.documentElement.lang=this.lang; },
+    formatDate(s){ return new Date(s).toLocaleDateString(this.lang==='zh'?'zh-CN':this.lang==='de'?'de-DE':this.lang==='en'?'en-US':'ru-RU'); },
+    formatMoney(c,curr='RUB'){ return new Intl.NumberFormat(this.lang==='zh'?'zh-CN':this.lang==='de'?'de-DE':this.lang==='en'?'en-US':'ru-RU',{style:'currency',currency:curr,maximumFractionDigits:0}).format(c/100); },
+    getAuthHeaders(){ return { Authorization:`Bearer ${this.auth.token}`,'Content-Type':'application/json' }; },
+    normalizePurchasedPlans(rows){ return rows.map((r)=>({id:r.id,name:r.plan?.name||'Plan',period:`${this.formatDate(r.startsAt)} — ${this.formatDate(r.expiresAt)}`,devices:'до 5 устройств',status:r.status==='ACTIVE'?'Активен':r.status})); },
+    normalizePayments(rows){ return rows.map((r)=>({id:r.externalId||`PAY-${r.id}`,date:r.paidAt?this.formatDate(r.paidAt):this.formatDate(r.createdAt),amount:this.formatMoney(r.amountCents,r.currency),method:r.paymentMethod||'Card',status:r.status==='PAID'?'Успешно':r.status})); },
+    normalizeNotifications(rows){ return rows.map((r)=>({title:r.title,text:r.message,type:r.type||'info'})); },
+    async submitAuth(){ this.auth.error=''; this.auth.loading=true; const endpoint=this.auth.mode==='register'?'/api/auth/register':'/api/auth/login'; const payload={email:this.auth.email,password:this.auth.password,...(this.auth.mode==='register'?{name:this.auth.name}:{})}; try{const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const d=await r.json(); if(!r.ok){this.auth.error=d.error||'Auth error';return;} this.auth.token=d.token; localStorage.setItem(TOKEN_KEY,d.token); await this.loadSessionData();}catch(_e){this.auth.error='API unavailable';}finally{this.auth.loading=false;} },
+    async loadSessionData(){ await Promise.all([this.loadMe(),this.loadPurchasedPlans(),this.loadPaymentHistory(),this.loadNotifications()]); },
+    async loadMe(){ try{ const r=await fetch('/api/auth/me',{headers:{Authorization:`Bearer ${this.auth.token}`}}); if(!r.ok){this.logout();return;} const d=await r.json(); this.profile.name=d.user.name; this.profile.email=d.user.email; this.profile.status='Premium'; }catch(_e){ this.auth.error='Profile error'; } },
+    async loadPublicPlans(){ try{ const r=await fetch('/api/public/plans'); if(!r.ok)return; const d=await r.json(); this.availablePlans=Array.isArray(d.plans)?d.plans:[]; if(!this.purchaseForm.planExternalId&&this.availablePlans[0])this.purchaseForm.planExternalId=this.availablePlans[0].externalId;}catch(_e){} },
+    async loadPurchasedPlans(){ const r=await fetch('/api/private/purchased-plans',{headers:this.getAuthHeaders()}); if(!r.ok)return; const d=await r.json(); this.purchasedPlans=this.normalizePurchasedPlans(d.purchasedPlans||[]); this.profile.devices=this.purchasedPlans.length>0?5:0; },
+    async loadPaymentHistory(){ const r=await fetch('/api/private/payment-history',{headers:this.getAuthHeaders()}); if(!r.ok)return; const d=await r.json(); this.paymentHistory=this.normalizePayments(d.paymentHistory||[]); },
+    async loadNotifications(){ const r=await fetch('/api/private/notifications',{headers:this.getAuthHeaders()}); if(!r.ok)return; const d=await r.json(); this.notifications=this.normalizeNotifications(d.notifications||[]); },
+    async submitPurchase(){ this.purchaseForm.success=''; this.purchaseForm.error=''; if(!this.purchaseForm.planExternalId){ this.purchaseForm.error='Select plan'; return; } this.purchaseForm.submitting=true; try{ const r=await fetch('/api/private/purchase',{method:'POST',headers:this.getAuthHeaders(),body:JSON.stringify({planExternalId:this.purchaseForm.planExternalId,paymentMethod:this.purchaseForm.paymentMethod})}); const p=await r.json(); if(!r.ok){this.purchaseForm.error=p.error||'Purchase failed';return;} this.purchaseForm.success=this.t('bought'); await Promise.all([this.loadPurchasedPlans(),this.loadPaymentHistory(),this.loadNotifications()]); }catch(_e){ this.purchaseForm.error='Server unavailable'; } finally{ this.purchaseForm.submitting=false; } },
+    logout(){ this.auth.token=''; localStorage.removeItem(TOKEN_KEY); this.profile={...this.profile,name:'Гость',email:'—',devices:0,status:'Free'}; this.purchasedPlans=[]; this.paymentHistory=[]; this.notifications=[]; }
   },
-  template: `
-    <div class="page">
-      <header class="hero hero--compact">
-        <nav class="nav">
-          <div class="logo"><img class="logo__image" src="https://b.freecityvpn.com/images/logo_header_pc.svg?v=202602241650" alt="{{ brand }}" /></div>
-          <a href="./index.html" class="btn btn--small">На главную</a>
-        </nav>
-      </header>
-
-      <main>
-        <section class="account account--top">
-          <article class="panel auth-panel" v-if="!isAuthorized">
-            <h2>{{ auth.mode === 'register' ? 'Регистрация' : 'Авторизация' }}</h2>
-            <p class="muted">Работает через Node.js API + PostgreSQL + Prisma.</p>
-            <form class="auth-form" @submit.prevent="submitAuth">
-              <label v-if="auth.mode === 'register'">
-                Имя
-                <input v-model="auth.name" type="text" required placeholder="Ваше имя" />
-              </label>
-              <label>
-                Email
-                <input v-model="auth.email" type="email" required placeholder="you@example.com" />
-              </label>
-              <label>
-                Пароль
-                <input v-model="auth.password" type="password" required minlength="6" placeholder="Минимум 6 символов" />
-              </label>
-              <button class="btn" type="submit" :disabled="auth.loading">
-                {{ auth.loading ? 'Подождите...' : (auth.mode === 'register' ? 'Создать аккаунт' : 'Войти') }}
-              </button>
-              <p class="error" v-if="auth.error">{{ auth.error }}</p>
-            </form>
-            <button class="link-button" @click="auth.mode = auth.mode === 'register' ? 'login' : 'register'">
-              {{ auth.mode === 'register' ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться' }}
-            </button>
-          </article>
-
-          <section id="account" v-else>
-            <div class="account__header">
-              <h1>Личный кабинет</h1>
-              <div class="auth-actions">
-                <span class="status-pill">{{ profile.status }}</span>
-                <button class="btn btn--small" @click="logout">Выйти</button>
-              </div>
-            </div>
-
-            <div class="account__grid">
-              <article class="panel">
-                <h3>Профиль</h3>
-                <ul class="details-list">
-                  <li><span>Имя</span><strong>{{ profile.name }}</strong></li>
-                  <li><span>Email</span><strong>{{ profile.email }}</strong></li>
-                  <li><span>Страна</span><strong>{{ profile.country }}</strong></li>
-                  <li><span>Подключено устройств</span><strong>{{ profile.devices }}</strong></li>
-                </ul>
-              </article>
-
-              <article class="panel">
-                <h3>Купленные тарифы</h3>
-                <ul class="stack-list">
-                  <li v-for="tariff in purchasedPlans" :key="tariff.name" class="stack-item">
-                    <div>
-                      <strong>{{ tariff.name }}</strong>
-                      <p>{{ tariff.period }}</p>
-                      <small>{{ tariff.devices }}</small>
-                    </div>
-                    <span class="tag">{{ tariff.status }}</span>
-                  </li>
-                </ul>
-              </article>
-
-              <article class="panel panel--wide">
-                <h3>История платежей</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>№</th>
-                        <th>Дата</th>
-                        <th>Сумма</th>
-                        <th>Способ оплаты</th>
-                        <th>Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="payment in paymentHistory" :key="payment.id">
-                        <td>{{ payment.id }}</td>
-                        <td>{{ payment.date }}</td>
-                        <td>{{ payment.amount }}</td>
-                        <td>{{ payment.method }}</td>
-                        <td>
-                          <span class="tag" :class="{ 'tag--warn': payment.status === 'Возврат' }">{{ payment.status }}</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </article>
-
-              <article class="panel panel--wide">
-                <h3>Уведомления</h3>
-                <ul class="stack-list">
-                  <li v-for="note in notifications" :key="note.title" class="notice" :class="'notice--' + note.type">
-                    <strong>{{ note.title }}</strong>
-                    <p>{{ note.text }}</p>
-                  </li>
-                </ul>
-              </article>
-            </div>
-          </section>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="site-footer__inner">
-          <img class="site-footer__logo" src="https://b.freecityvpn.com/images/logo_footer_pc.svg?v=202602241650" alt="FreeCity VPN" />
-          <p>© {{ new Date().getFullYear() }} FreeCity VPN. Все права защищены.</p>
-          <div class="site-footer__links">
-            <a href="./index.html" class="link">Главная</a>
-            <a href="https://t.me/freecity_support_bot" class="link" target="_blank" rel="noopener noreferrer">Поддержка</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-  `
+  template:`<div class="page"><header class="hero hero--compact"><nav class="nav"><div class="logo"><img class="logo__image" src="https://b.freecityvpn.com/images/logo_header_pc.svg?v=202602241650" alt="{{ brand }}" /></div><div class="nav__actions"><select class="lang-select" v-model="lang" @change="setLang"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option><option value="zh">中文</option></select><a href="./index.html" class="btn btn--small">{{ t('home') }}</a></div></nav></header><main><section class="account account--top"><article class="panel auth-panel" v-if="!isAuthorized"><h2>{{ auth.mode==='register' ? t('register') : t('login') }}</h2><p class="muted">{{ t('authDesc') }}</p><form class="auth-form" @submit.prevent="submitAuth"><label v-if="auth.mode==='register'">{{ t('name') }}<input v-model="auth.name" type="text" required /></label><label>{{ t('email') }}<input v-model="auth.email" type="email" required /></label><label>{{ t('password') }}<input v-model="auth.password" type="password" required minlength="6" /></label><button class="btn" type="submit" :disabled="auth.loading">{{ auth.loading ? t('wait') : (auth.mode==='register'?t('create'):t('enter')) }}</button><p class="error" v-if="auth.error">{{ auth.error }}</p></form><button class="link-button" @click="auth.mode=auth.mode==='register'?'login':'register'">{{ auth.mode==='register'?t('hasAcc'):t('noAcc') }}</button></article><section id="account" v-else><div class="account__header"><h1>{{ t('cabinet') }}</h1><div class="auth-actions"><span class="status-pill">{{ profile.status }}</span><button class="btn btn--small" @click="logout">{{ t('logout') }}</button></div></div><div class="account__grid"><article class="panel"><h3>{{ t('cabinet') }}</h3><ul class="details-list"><li><span>{{ t('name') }}</span><strong>{{ profile.name }}</strong></li><li><span>{{ t('email') }}</span><strong>{{ profile.email }}</strong></li><li><span>{{ t('country') }}</span><strong>{{ profile.country }}</strong></li><li><span>{{ t('devices') }}</span><strong>{{ profile.devices }}</strong></li></ul></article><article class="panel"><h3>{{ t('buyPlan') }}</h3><form class="auth-form" @submit.prevent="submitPurchase"><label>{{ t('plan') }}<select v-model="purchaseForm.planExternalId" required><option disabled value="">{{ t('pickPlan') }}</option><option v-for="plan in availablePlans" :value="plan.externalId" :key="plan.externalId">{{ plan.name }} — {{ formatMoney(plan.priceCents, plan.currency) }}</option></select></label><label>{{ t('paymentMethod') }}<select v-model="purchaseForm.paymentMethod"><option>{{ t('card') }}</option><option>SBP</option></select></label><button class="btn" type="submit" :disabled="purchaseForm.submitting">{{ purchaseForm.submitting ? t('buying') : t('buy') }}</button><p class="success" v-if="purchaseForm.success">{{ purchaseForm.success }}</p><p class="error" v-if="purchaseForm.error">{{ purchaseForm.error }}</p></form></article><article class="panel panel--wide"><h3>{{ t('purchased') }}</h3><ul class="stack-list" v-if="purchasedPlans.length"><li v-for="tariff in purchasedPlans" :key="tariff.id" class="stack-item"><div><strong>{{ tariff.name }}</strong><p>{{ tariff.period }}</p><small>{{ tariff.devices }}</small></div><span class="tag">{{ tariff.status }}</span></li></ul><p v-else class="muted">{{ t('noPurchased') }}</p></article><article class="panel panel--wide"><h3>{{ t('history') }}</h3><div class="table-wrap" v-if="paymentHistory.length"><table><thead><tr><th>№</th><th>Дата</th><th>{{ t('buy') }}</th><th>{{ t('paymentMethod') }}</th><th>Статус</th></tr></thead><tbody><tr v-for="payment in paymentHistory" :key="payment.id"><td>{{ payment.id }}</td><td>{{ payment.date }}</td><td>{{ payment.amount }}</td><td>{{ payment.method }}</td><td><span class="tag">{{ payment.status }}</span></td></tr></tbody></table></div><p v-else class="muted">{{ t('noHistory') }}</p></article><article class="panel panel--wide"><h3>{{ t('notifications') }}</h3><ul class="stack-list" v-if="notifications.length"><li v-for="note in notifications" :key="note.title+note.text" class="notice" :class="'notice--'+note.type"><strong>{{ note.title }}</strong><p>{{ note.text }}</p></li></ul><p v-else class="muted">{{ t('noNotifications') }}</p></article></div></section></section></main><footer class="site-footer"><div class="site-footer__inner"><img class="site-footer__logo" src="https://b.freecityvpn.com/images/logo_footer_pc.svg?v=202602241650" alt="FreeCity VPN" /><p>© {{ new Date().getFullYear() }} FreeCity VPN. {{ t('rights') }}</p><div class="site-footer__links"><a href="./index.html" class="link">{{ t('main') }}</a><a href="https://t.me/freecity_support_bot" class="link" target="_blank" rel="noopener noreferrer">{{ t('support') }}</a></div></div></footer></div>`
 }).mount('#app');

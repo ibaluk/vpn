@@ -8,10 +8,81 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String
-  name         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
+  passwordHash   String
+  name           String
+  purchasedPlans PurchasedPlan[]
+  paymentHistory PaymentHistory[]
+  notifications  Notification[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Plan {
+  id               Int             @id @default(autoincrement())
+  externalId       String          @unique
+  name             String
+  priceCents       Int
+  currency         String          @default("RUB")
+  durationDays     Int
+  description      String?
+  isActive         Boolean         @default(true)
+  purchasedPlans   PurchasedPlan[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model PurchasedPlan {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  planId         Int
+  externalId     String?      @unique
+  status         String
+  startsAt       DateTime
+  expiresAt      DateTime
+  autoRenew      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan           Plan         @relation(fields: [planId], references: [id], onDelete: Restrict)
+  paymentHistory PaymentHistory[]
+
+  @@index([userId])
+  @@index([planId])
+}
+
+model PaymentHistory {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  purchasedPlanId Int?
+  externalId      String?       @unique
+  amountCents     Int
+  currency        String        @default("RUB")
+  status          String
+  paymentMethod   String
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchasedPlan   PurchasedPlan? @relation(fields: [purchasedPlanId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([purchasedPlanId])
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  externalId String?  @unique
+  title      String
+  message    String
+  type       String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
 }

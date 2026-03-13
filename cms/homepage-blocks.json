@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "about-freecity-vpn",
+    "title": "О FreeCity VPN",
+    "excerpt": "Коротко о сервисе",
+    "content": "<!-- wp:heading {\"level\":3} -->\n<h3>Быстрый и безопасный VPN для каждого дня</h3>\n<!-- /wp:heading -->\n<!-- wp:paragraph -->\n<p>FreeCity VPN защищает трафик в публичных Wi‑Fi сетях, помогает обходить гео-ограничения и сохраняет стабильную скорость подключения.</p>\n<!-- /wp:paragraph -->\n<!-- wp:list -->\n<ul><li>Подключение в один клик</li><li>Серверы в десятках стран</li><li>Поддержка стриминга и онлайн-игр</li></ul>\n<!-- /wp:list -->"
+  },
+  {
+    "slug": "why-choose-free-vpn",
+    "title": "Почему выбирают наш бесплатный ВПН?",
+    "excerpt": "Преимущества сервиса",
+    "content": "<!-- wp:columns -->\n<div class=\"wp-block-columns\"><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":4} --><h4>Безопасность</h4><!-- /wp:heading --><!-- wp:paragraph --><p>AES‑256, защита DNS и kill switch для стабильной защиты.</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":4} --><h4>Скорость</h4><!-- /wp:heading --><!-- wp:paragraph --><p>Оптимизированная сеть серверов для видео, звонков и игр без задержек.</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":4} --><h4>Поддержка</h4><!-- /wp:heading --><!-- wp:paragraph --><p>Быстрая помощь в Telegram и понятные инструкции для всех платформ.</p><!-- /wp:paragraph --></div><!-- /wp:column --></div>\n<!-- /wp:columns -->"
+  }
+]
